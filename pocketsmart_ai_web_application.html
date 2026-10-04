@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PocketSmart AI - Small Budget & Recommendation Assistant</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                        },
+                        accent: {
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .light .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(229, 231, 235, 0.8);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(156, 163, 175, 0.3);
+            border-radius: 9999px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(156, 163, 175, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 dark:bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col transition-colors duration-300 selection:bg-brand-500 selection:text-slate-950">
+
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <div id="app" class="flex-grow flex flex-col min-h-screen">
+
+        <section id="auth-view" class="min-h-screen flex flex-col justify-between p-4 md:p-8 relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950">
+            <!-- Ambient Lighting -->
+            <div class="absolute -top-32 -left-32 w-96 h-96 bg-brand-500/15 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-accent-500/15 rounded-full blur-3xl pointer-events-none"></div>
+
+            <header class="max-w-7xl w-full mx-auto flex items-center justify-between z-10 py-2">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-brand-500 to-accent-500 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-brand-500/20">
+                        <i class="fa-solid fa-piggy-bank"></i>
+                    </div>
+                    <span class="text-2xl font-black tracking-tight text-white">PocketSmart <span class="text-brand-400 font-semibold text-xs px-2 py-0.5 rounded-full bg-brand-500/10 border border-brand-500/20">AI</span></span>
+                </div>
+                <button onclick="toggleDarkMode()" class="w-9 h-9 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-sun dark:hidden"></i>
+                    <i class="fa-solid fa-moon hidden dark:block"></i>
+                </button>
+            </header>
+
+            <main class="max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center my-auto z-10 py-6">
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-xs font-semibold text-brand-400">
+                        <i class="fa-solid fa-sparkles"></i> AI Micro-Budgeting & Recommendation Engine
+                    </div>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight text-white">
+                        Smart Decisions for <br>
+                        <span class="bg-gradient-to-r from-brand-400 via-emerald-300 to-accent-400 bg-clip-text text-transparent">Every Small Budget.</span>
+                    </h1>
+                    <p class="text-slate-300 text-base sm:text-lg max-w-xl leading-relaxed">
+                        Track daily spending, evaluate prospective purchases before buying, find real-time discount deals, and chat with your personal Gemini AI budget coach.
+                    </p>
+
+                    <div class="grid grid-cols-3 gap-3 pt-2">
+                        <div class="glass-panel p-3.5 rounded-2xl">
+                            <i class="fa-solid fa-calculator text-brand-400 text-lg mb-1"></i>
+                            <h3 class="font-bold text-xs text-white">Purchase Evaluator</h3>
+                            <p class="text-[10px] text-slate-400">"Should I Buy This?" AI score</p>
+                        </div>
+                        <div class="glass-panel p-3.5 rounded-2xl">
+                            <i class="fa-solid fa-tags text-accent-400 text-lg mb-1"></i>
+                            <h3 class="font-bold text-xs text-white">Smart Deal Finder</h3>
+                            <p class="text-[10px] text-slate-400">Personalized category deals</p>
+                        </div>
+                        <div class="glass-panel p-3.5 rounded-2xl">
+                            <i class="fa-solid fa-robot text-emerald-300 text-lg mb-1"></i>
+                            <h3 class="font-bold text-xs text-white">AI Coach Chat</h3>
+                            <p class="text-[10px] text-slate-400">Powered by Gemini AI</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 w-full">
+                    <div class="glass-panel p-6 sm:p-8 rounded-3xl shadow-2xl relative border border-slate-800">
+                        <div class="flex items-center justify-between mb-6 pb-2 border-b border-slate-800">
+                            <button id="auth-tab-login" onclick="setAuthTab('login')" class="text-base font-bold text-brand-400 border-b-2 border-brand-400 pb-2 transition">Sign In</button>
+                            <button id="auth-tab-signup" onclick="setAuthTab('signup')" class="text-base font-bold text-slate-400 hover:text-slate-200 pb-2 transition">Create Account</button>
+                        </div>
+
+                        <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                            <div id="auth-field-name" class="hidden">
+                                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Full Name</label>
+                                <input type="text" id="auth-name" placeholder="Alex Rivers" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500">
+                            </div>
+
+                            <div>
+                                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Email Address</label>
+                                <input type="email" id="auth-email" required placeholder="alex@pocketsmart.ai" value="alex.smart@demo.com" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500">
+                            </div>
+
+                            <div>
+                                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">Password</label>
+                                <input type="password" id="auth-password" required placeholder="••••••••" value="demo1234" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500">
+                            </div>
+
+                            <div id="auth-field-setup" class="hidden grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Monthly Income</label>
+                                    <input type="number" id="auth-income" placeholder="2500" value="2500" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Budget Target</label>
+                                    <input type="number" id="auth-budget" placeholder="1800" value="1800" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
+                                </div>
+                            </div>
+
+                            <button type="submit" id="auth-submit-btn" class="w-full bg-gradient-to-r from-brand-500 to-emerald-600 hover:from-brand-600 hover:to-emerald-700 text-slate-950 font-extrabold py-3 rounded-xl shadow-lg shadow-brand-500/20 text-xs transition duration-200 mt-2">
+                                Sign In to PocketSmart
+                            </button>
+                        </form>
+
+                        <div class="relative my-5 flex items-center justify-center">
+                            <div class="border-t border-slate-800 w-full"></div>
+                            <span class="bg-slate-950 px-3 text-[10px] text-slate-500 uppercase font-semibold absolute">Or Instant Access</span>
+                        </div>
+
+                        <button onclick="loginAsGuest()" class="w-full bg-slate-900 hover:bg-slate-800 text-slate-200 border border-slate-800 font-bold py-2.5 rounded-xl transition text-xs flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-bolt text-amber-400"></i> Explore Live Guest Demo
+                        </button>
+                    </div>
+                </div>
+            </main>
+
+            <footer class="max-w-7xl w-full mx-auto text-center text-xs text-slate-600 py-2">
+                © 2026 PocketSmart AI - Micro-Budgeting & Personal Savings Platform
+            </footer>
+        </section>
+
+        <section id="dashboard-view" class="hidden min-h-screen bg-slate-950 text-slate-100 flex flex-col md:flex-row">
+            
+            <!-- Sidebar Navigation -->
+            <aside class="w-full md:w-64 bg-slate-900/90 border-r border-slate-800 flex flex-col justify-between p-4 flex-shrink-0 z-20">
+                <div>
+                    <!-- Brand -->
+                    <div class="flex items-center justify-between px-2 py-3 mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-500 to-accent-500 flex items-center justify-center text-slate-950 font-black text-lg">
+                                <i class="fa-solid fa-piggy-bank"></i>
+                            </div>
+                            <div>
+                                <h2 class="font-extrabold text-base tracking-tight leading-none text-white">PocketSmart</h2>
+                                <span class="text-[10px] text-brand-400 font-semibold">AI Assistant</span>
+                            </div>
+                        </div>
+                        <button onclick="toggleDarkMode()" class="md:hidden text-slate-400 hover:text-white p-2">
+                            <i class="fa-solid fa-sun dark:hidden"></i>
+                            <i class="fa-solid fa-moon hidden dark:block"></i>
+                        </button>
+                    </div>
+
+                    <!-- Navigation Links -->
+                    <nav class="space-y-1">
+                        <button onclick="switchTab('overview')" id="nav-overview" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition">
+                            <i class="fa-solid fa-chart-pie w-4 text-center"></i> Overview & Analytics
+                        </button>
+                        <button onclick="switchTab('tracker')" id="nav-tracker" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition">
+                            <i class="fa-solid fa-list-check w-4 text-center"></i> Expense Tracker
+                        </button>
+                        <button onclick="switchTab('evaluator')" id="nav-evaluator" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition">
+                            <i class="fa-solid fa-calculator w-4 text-center"></i> Purchase Evaluator
+                        </button>
+                        <button onclick="switchTab('deals')" id="nav-deals" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition">
+                            <i class="fa-solid fa-tags w-4 text-center"></i> Smart Deals & Tips
+                        </button>
+                        <button onclick="switchTab('ai-coach')" id="nav-ai-coach" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition">
+                            <i class="fa-solid fa-robot w-4 text-center text-accent-400"></i> AI Budget Coach
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- User Profile & Preferences Footer -->
+                <div class="pt-4 border-t border-slate-800 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">Currency</span>
+                            <select id="pref-currency" onchange="handleCurrencyChange(this.value)" class="bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-[11px] text-brand-400 font-bold focus:outline-none">
+                                <option value="USD">USD ($)</option>
+                                <option value="EUR">EUR (€)</option>
+                                <option value="GBP">GBP (£)</option>
+                                <option value="INR">INR (₹)</option>
+                            </select>
+                        </div>
+                        <button onclick="toggleDarkMode()" class="hidden md:flex text-slate-400 hover:text-white p-1.5 rounded-lg bg-slate-950 border border-slate-800 text-xs">
+                            <i class="fa-solid fa-sun dark:hidden"></i>
+                            <i class="fa-solid fa-moon hidden dark:block"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-2">
+                        <div class="flex items-center gap-2.5 overflow-hidden">
+                            <div class="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-brand-400 font-bold text-xs" id="user-avatar">
+                                A
+                            </div>
+                            <div class="truncate">
+                                <p class="text-xs font-bold text-white truncate" id="user-display-name">Alex Rivers</p>
+                                <p class="text-[10px] text-slate-400 truncate" id="user-display-email">alex@demo.com</p>
+                            </div>
+                        </div>
+                        <button onclick="handleLogout()" class="text-slate-400 hover:text-rose-400 p-2 transition" title="Logout">
+                            <i class="fa-solid fa-right-from-bracket text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content Container -->
+            <main class="flex-grow p-4 sm:p-6 lg:p-8 overflow-y-auto max-w-7xl mx-auto w-full custom-scrollbar">
+
+                <div id="tab-content-overview" class="space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h1 class="text-2xl font-black text-white">Financial Dashboard</h1>
+                            <p class="text-xs text-slate-400">Real-time budget metrics & AI spending intelligence</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="openExpenseModal()" class="bg-brand-500 hover:bg-brand-600 text-slate-950 font-extrabold px-4 py-2 rounded-xl text-xs transition flex items-center gap-2 shadow-md shadow-brand-500/20">
+                                <i class="fa-solid fa-plus"></i> Add Expense
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Key Financial Metrics Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
+                            <div class="flex items-center justify-between text-slate-400 mb-1">
+                                <span class="text-[10px] font-bold uppercase tracking-wider">Monthly Income</span>
+                                <i class="fa-solid fa-money-bill-wave text-emerald-400 text-xs"></i>
+                            </div>
+                            <div class="text-xl sm:text-2xl font-black text-white" id="stat-income">$2,500.00</div>
+                            <div class="text-[10px] text-slate-400 mt-2 flex justify-between">
+                                <span>Target: <span id="stat-target">$1,800.00</span></span>
+                                <button onclick="promptEditIncome()" class="text-brand-400 hover:underline">Edit</button>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
+                            <div class="flex items-center justify-between text-slate-400 mb-1">
+                                <span class="text-[10px] font-bold uppercase tracking-wider">Total Spent</span>
+                                <i class="fa-solid fa-credit-card text-rose-400 text-xs"></i>
+                            </div>
+                            <div class="text-xl sm:text-2xl font-black text-rose-400" id="stat-spent">$820.50</div>
+                            <div class="text-[10px] text-slate-400 mt-2" id="stat-spent-pct">
+                                45.6% of target used
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
+                            <div class="flex items-center justify-between text-slate-400 mb-1">
+                                <span class="text-[10px] font-bold uppercase tracking-wider">Remaining Balance</span>
+                                <i class="fa-solid fa-wallet text-brand-400 text-xs"></i>
+                            </div>
+                            <div class="text-xl sm:text-2xl font-black text-brand-400" id="stat-remaining">$979.50</div>
+                            <div class="text-[10px] text-emerald-400 mt-2">
+                                <i class="fa-solid fa-circle-check"></i> Safe spending margin
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between">
+                            <div class="flex items-center justify-between text-slate-400 mb-1">
+                                <span class="text-[10px] font-bold uppercase tracking-wider">Savings Rate</span>
+                                <i class="fa-solid fa-chart-line text-accent-400 text-xs"></i>
+                            </div>
+                            <div class="text-xl sm:text-2xl font-black text-accent-400" id="stat-savings-rate">67.2%</div>
+                            <div class="text-[10px] text-slate-400 mt-2">
+                                Projected monthly savings
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Grid -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <div class="lg:col-span-7 bg-slate-900/80 border border-slate-800 rounded-2xl p-5 flex flex-col">
+                            <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-300 mb-4 flex items-center justify-between">
+                                Category Breakdown
+                                <span class="text-[10px] text-slate-500 font-normal">Active Month</span>
+                            </h3>
+                            <div class="flex-grow flex items-center justify-center relative min-h-[240px]">
+                                <canvas id="chart-doughnut"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-5 bg-slate-900/80 border border-slate-800 rounded-2xl p-5 flex flex-col">
+                            <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-300 mb-4">
+                                Spending Trend (6 Months)
+                            </h3>
+                            <div class="flex-grow flex items-center justify-center relative min-h-[240px]">
+                                <canvas id="chart-trend"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Insights Banner -->
+                    <div class="bg-gradient-to-r from-slate-900 via-indigo-950/50 to-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-2xl bg-accent-500/20 text-accent-400 border border-accent-500/30 flex items-center justify-center flex-shrink-0 text-xl">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-extrabold text-sm text-white mb-1">AI Recommendation Insight</h4>
+                                <p class="text-xs text-slate-300 leading-relaxed max-w-xl" id="ai-overview-insight">
+                                    Analyzing your recent transactions: You can save ~$65/mo by auditing dining out frequencies and swapping brand-name groceries.
+                                </p>
+                            </div>
+                        </div>
+                        <button onclick="switchTab('ai-coach')" class="whitespace-nowrap bg-slate-800 hover:bg-slate-700 text-white font-bold px-4 py-2 rounded-xl text-xs transition border border-slate-700">
+                            Ask AI Coach
+                        </button>
+                    </div>
+                </div>
+
+                <div id="tab-content-tracker" class="hidden space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <h1 class="text-2xl font-black text-white">Expense Tracker</h1>
+                            <p class="text-xs text-slate-400">Detailed transaction log & filtering</p>
+                        </div>
+                        <button onclick="openExpenseModal()" class="bg-brand-500 hover:bg-brand-600 text-slate-950 font-extrabold px-4 py-2 rounded-xl text-xs transition flex items-center gap-2 shadow-md shadow-brand-500/20">
+                            <i class="fa-solid fa-plus"></i> Add New Expense
+                        </button>
+                    </div>
+
+                    <!-- Filter & Search Controls -->
+                    <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 flex flex-wrap gap-3 items-center justify-between">
+                        <div class="flex items-center gap-2 flex-grow max-w-sm bg-slate-950 border border-slate-800 rounded-xl px-3 py-2">
+                            <i class="fa-solid fa-search text-slate-500 text-xs"></i>
+                            <input type="text" id="tracker-search" onkeyup="renderExpensesTable()" placeholder="Search description or tags..." class="bg-transparent text-xs text-white placeholder-slate-500 focus:outline-none w-full">
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <select id="tracker-cat-filter" onchange="renderExpensesTable()" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-brand-500">
+                                <option value="ALL">All Categories</option>
+                                <option value="Groceries">Groceries</option>
+                                <option value="Food & Dining">Food & Dining</option>
+                                <option value="Utilities">Utilities</option>
+                                <option value="Transport">Transport</option>
+                                <option value="Entertainment">Entertainment</option>
+                                <option value="Shopping">Shopping</option>
+                                <option value="Others">Others</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Expenses Table -->
+                    <div class="bg-slate-900/80 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="bg-slate-950/90 border-b border-slate-800 text-slate-400 uppercase tracking-wider font-extrabold">
+                                        <th class="p-3.5">Date</th>
+                                        <th class="p-3.5">Description</th>
+                                        <th class="p-3.5">Category</th>
+                                        <th class="p-3.5">Tag</th>
+                                        <th class="p-3.5">Amount</th>
+                                        <th class="p-3.5 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="expenses-table-body" class="divide-y divide-slate-800/60 text-slate-300">
+                                    <!-- Dynamic Rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-content-evaluator" class="hidden space-y-6">
+                    <div>
+                        <h1 class="text-2xl font-black text-white">"Should I Buy This?" Purchase Evaluator</h1>
+                        <p class="text-xs text-slate-400">Evaluate impulse buys & non-essential expenses before spending</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <div class="lg:col-span-5 bg-slate-900/80 border border-slate-800 rounded-2xl p-6">
+                            <h3 class="text-sm font-extrabold text-white mb-4">Input Purchase Details</h3>
+                            <form onsubmit="handleEvaluatePurchase(event)" class="space-y-4">
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Item Name</label>
+                                    <input type="text" id="eval-name" required placeholder="e.g. Wireless Noise-Canceling Headphones" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Price</label>
+                                        <input type="number" step="0.01" id="eval-price" required placeholder="120.00" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Priority</label>
+                                        <select id="eval-priority" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-brand-500">
+                                            <option value="1">Low (Wants / Impulse)</option>
+                                            <option value="2">Medium (Useful Upgrade)</option>
+                                            <option value="3">High (Essential Necessity)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Usage Frequency</label>
+                                    <select id="eval-frequency" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-brand-500">
+                                        <option value="daily">Daily Use</option>
+                                        <option value="weekly">Few Times a Week</option>
+                                        <option value="monthly">Occasional / Monthly</option>
+                                        <option value="once">One-Time / Rare</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="w-full bg-gradient-to-r from-accent-500 to-indigo-600 hover:from-accent-600 hover:to-indigo-700 text-white font-extrabold py-3 rounded-xl text-xs transition shadow-lg shadow-indigo-500/20">
+                                    <i class="fa-solid fa-calculator"></i> Evaluate Purchase
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Evaluator Result Box -->
+                        <div class="lg:col-span-7 bg-slate-900/80 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between" id="evaluator-result-card">
+                            <div class="text-center py-12 text-slate-500">
+                                <i class="fa-solid fa-scale-balanced text-4xl mb-3 text-slate-600"></i>
+                                <p class="text-xs">Fill in purchase details to run the AI Decision Algorithm.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tab-content-deals" class="hidden space-y-6">
+                    <div>
+                        <h1 class="text-2xl font-black text-white">Smart Deals & Recommendations</h1>
+                        <p class="text-xs text-slate-400">Curated micro-budget savings & local discount finder</p>
+                    </div>
+
+                    <!-- Category Filter Pills -->
+                    <div class="flex items-center gap-2 overflow-x-auto pb-2 custom-scrollbar" id="deals-category-bar">
+                        <button onclick="filterDeals('ALL')" class="deal-cat-btn bg-brand-500 text-slate-950 font-extrabold px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition">All Deals</button>
+                        <button onclick="filterDeals('Groceries')" class="deal-cat-btn bg-slate-900 border border-slate-800 text-slate-300 font-bold px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition">Groceries</button>
+                        <button onclick="filterDeals('Tech')" class="deal-cat-btn bg-slate-900 border border-slate-800 text-slate-300 font-bold px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition">Tech & Apps</button>
+                        <button onclick="filterDeals('Apparel')" class="deal-cat-btn bg-slate-900 border border-slate-800 text-slate-300 font-bold px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition">Apparel</button>
+                        <button onclick="filterDeals('Dining')" class="deal-cat-btn bg-slate-900 border border-slate-800 text-slate-300 font-bold px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition">Dining Out</button>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="deals-grid">
+                        <!-- Dynamic Deal Cards -->
+                    </div>
+                </div>
+
+                <div id="tab-content-ai-coach" class="hidden h-[calc(100vh-140px)] flex flex-col bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden">
+                    <div class="p-4 bg-slate-950 border-b border-slate-800 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-xl bg-accent-500/20 border border-accent-500/30 text-accent-400 flex items-center justify-center text-sm">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-extrabold text-sm text-white">Gemini AI Budget Coach</h3>
+                                <p class="text-[10px] text-emerald-400 flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Context-aware financial advisor
+                                </p>
+                            </div>
+                        </div>
+                        <button onclick="clearChatHistory()" class="text-xs text-slate-500 hover:text-slate-300 transition">Clear</button>
+                    </div>
+
+                    <!-- Quick Prompt Chips -->
+                    <div class="px-4 py-2 bg-slate-950/60 border-b border-slate-800/60 flex items-center gap-2 overflow-x-auto custom-scrollbar">
+                        <span class="text-[10px] text-slate-500 uppercase font-bold whitespace-nowrap">Quick Prompts:</span>
+                        <button onclick="sendQuickPrompt('Analyze my current spending habits based on logged expenses')" class="bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[11px] px-2.5 py-1 rounded-lg border border-slate-700/60 whitespace-nowrap">Analyze Spending</button>
+                        <button onclick="sendQuickPrompt('Give me 3 realistic ways to save $100 this month')" class="bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[11px] px-2.5 py-1 rounded-lg border border-slate-700/60 whitespace-nowrap">Save $100 Challenge</button>
+                        <button onclick="sendQuickPrompt('How should I structure a 50/30/20 budget with my current income?')" class="bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-[11px] px-2.5 py-1 rounded-lg border border-slate-700/60 whitespace-nowrap">50/30/20 Rule</button>
+                    </div>
+
+                    <!-- Chat Messages Log -->
+                    <div id="chat-messages" class="flex-grow p-4 overflow-y-auto space-y-4 text-xs custom-scrollbar">
+                        <div class="flex gap-3 max-w-xl">
+                            <div class="w-7 h-7 rounded-lg bg-accent-500/20 text-accent-400 border border-accent-500/30 flex items-center justify-center flex-shrink-0 text-xs">
+                                <i class="fa-solid fa-robot"></i>
+                            </div>
+                            <div class="bg-slate-800/80 border border-slate-700/80 p-3 rounded-2xl text-slate-200 leading-relaxed">
+                                Hello! I am your personal Gemini-powered Budget Coach. Ask me anything about optimizing your current budget, reducing recurring bills, or planning financial targets!
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input Controls -->
+                    <form onsubmit="handleSendChatMessage(event)" class="p-3 bg-slate-950 border-t border-slate-800 flex gap-2">
+                        <input type="text" id="chat-input-text" placeholder="Ask e.g., 'Am I spending too much on food?'" class="flex-grow bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-brand-500">
+                        <button type="submit" class="bg-brand-500 hover:bg-brand-600 text-slate-950 font-extrabold px-4 py-2.5 rounded-xl text-xs transition flex items-center justify-center">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </form>
+                </div>
+
+            </main>
+        </section>
+    </div>
+
+    <div id="modal-expense" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl relative">
+            <button onclick="closeExpenseModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <h3 class="text-base font-extrabold text-white mb-4" id="modal-title">Log New Expense</h3>
+            <form onsubmit="handleSaveExpense(event)" class="space-y-4">
+                <input type="hidden" id="modal-exp-id">
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Title / Description</label>
+                    <input type="text" id="modal-exp-title" required placeholder="e.g. Trader Joe's Groceries" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3 text-xs text-white focus:outline-none focus:border-brand-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Amount</label>
+                        <input type="number" step="0.01" id="modal-exp-amount" required placeholder="45.50" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3 text-xs text-white focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Category</label>
+                        <select id="modal-exp-category" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3 text-xs text-slate-300 focus:outline-none focus:border-brand-500">
+                            <option value="Groceries">Groceries</option>
+                            <option value="Food & Dining">Food & Dining</option>
+                            <option value="Utilities">Utilities</option>
+                            <option value="Transport">Transport</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Others">Others</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Date</label>
+                        <input type="date" id="modal-exp-date" required class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3 text-xs text-white focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Tag</label>
+                        <input type="text" id="modal-exp-tag" placeholder="e.g. Essential, Need" class="w-full bg-slate-950 border border-slate-800 rounded-xl py-2 px-3 text-xs text-white focus:outline-none focus:border-brand-500">
+                    </div>
+                </div>
+                <button type="submit" class="w-full bg-brand-500 hover:bg-brand-600 text-slate-950 font-extrabold py-2.5 rounded-xl text-xs transition mt-2">
+                    Save Expense Entry
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Currency Configuration
+        const CURRENCIES = {
+            USD: { symbol: '$', rate: 1.0 },
+            EUR: { symbol: '€', rate: 0.92 },
+            GBP: { symbol: '£', rate: 0.78 },
+            INR: { symbol: '₹', rate: 83.5 }
+        };
+
+        // Application State with LocalStorage Persistence
+        let state = {
+            user: {
+                name: 'Alex Rivers',
+                email: 'alex.smart@demo.com',
+                income: 2500,
+                budget: 1800,
+                currency: 'USD'
+            },
+            expenses: [
+                { id: 1, title: "Whole Foods Market", amount: 84.50, category: "Groceries", date: "2026-10-02", tag: "Essential" },
+                { id: 2, title: "Electric Utility Bill", amount: 110.00, category: "Utilities", date: "2026-10-01", tag: "Fixed" },
+                { id: 3, title: "Artisan Coffee & Snack", amount: 14.25, category: "Food & Dining", date: "2026-10-03", tag: "Treat" },
+                { id: 4, title: "Transit Card Top-Up", amount: 50.00, category: "Transport", date: "2026-09-28", tag: "Commute" },
+                { id: 5, title: "Weekend Italian Bistro", amount: 88.50, category: "Food & Dining", date: "2026-09-27", tag: "Social" },
+                { id: 6, title: "Movie Streaming Service", amount: 15.99, category: "Entertainment", date: "2026-09-25", tag: "Sub" },
+                { id: 7, title: "Target Home Essentials", amount: 62.10, category: "Shopping", date: "2026-09-22", tag: "Home" }
+            ],
+            deals: [
+                { id: 1, title: "Store-Brand Grocery Coupon", desc: "Get 20% off all organic store-brand generic items.", category: "Groceries", discount: "20% OFF", code: "POCKET20" },
+                { id: 2, title: "Student / Developer Cloud Pass", desc: "Access free cloud tier + $100 compute credits.", category: "Tech", discount: "FREE TIER", code: "CLOUD2026" },
+                { id: 3, title: "Seasonal Wardrobe Thrift Sale", desc: "Buy 1 Get 1 free on pre-owned jackets and footwear.", category: "Apparel", discount: "BOGO FREE", code: "THRIFTBOGO" },
+                { id: 4, title: "Lunch Combo Discount", desc: "Flat $5 off lunch entrees between 11 AM - 2 PM.", category: "Dining", discount: "$5 OFF", code: "LUNCH5" }
+            ]
+        };
+
+        let doughnutChart = null;
+        let trendChart = null;
+
+        // Initialize App
+        window.onload = function() {
+            loadStateFromStorage();
+            document.getElementById('modal-exp-date').valueAsDate = new Date();
+        };
+
+        function loadStateFromStorage() {
+            const saved = localStorage.getItem('pocketsmart_state');
+            if (saved) {
+                try {
+                    state = JSON.parse(saved);
+                } catch(e) {
+                    console.error("Error loading state", e);
+                }
+            }
+        }
+
+        function saveStateToStorage() {
+            localStorage.setItem('pocketsmart_state', JSON.stringify(state));
+        }
+
+        // --- AUTH & SETUP LOGIC ---
+        let currentAuthTab = 'login';
+        function setAuthTab(mode) {
+            currentAuthTab = mode;
+            const loginTab = document.getElementById('auth-tab-login');
+            const signupTab = document.getElementById('auth-tab-signup');
+            const nameField = document.getElementById('auth-field-name');
+            const setupFields = document.getElementById('auth-field-setup');
+            const submitBtn = document.getElementById('auth-submit-btn');
+
+            if (mode === 'login') {
+                loginTab.className = "text-base font-bold text-brand-400 border-b-2 border-brand-400 pb-2 transition";
+                signupTab.className = "text-base font-bold text-slate-400 hover:text-slate-200 pb-2 transition";
+                nameField.classList.add('hidden');
+                setupFields.classList.add('hidden');
+                submitBtn.innerText = "Sign In to PocketSmart";
+            } else {
+                signupTab.className = "text-base font-bold text-brand-400 border-b-2 border-brand-400 pb-2 transition";
+                loginTab.className = "text-base font-bold text-slate-400 hover:text-slate-200 pb-2 transition";
+                nameField.classList.remove('hidden');
+                setupFields.classList.remove('hidden');
+                submitBtn.innerText = "Create Account & Start";
+            }
+        }
+
+        function handleAuthSubmit(e) {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const name = document.getElementById('auth-name').value;
+            const income = parseFloat(document.getElementById('auth-income').value);
+            const budget = parseFloat(document.getElementById('auth-budget').value);
+
+            state.user.email = email;
+            if (name) state.user.name = name;
+            if (!isNaN(income)) state.user.income = income;
+            if (!isNaN(budget)) state.user.budget = budget;
+
+            saveStateToStorage();
+            enterDashboard();
+        }
+
+        function loginAsGuest() {
+            enterDashboard();
+        }
+
+        function enterDashboard() {
+            document.getElementById('auth-view').classList.add('hidden');
+            document.getElementById('dashboard-view').classList.remove('hidden');
+
+            document.getElementById('user-display-name').innerText = state.user.name;
+            document.getElementById('user-display-email').innerText = state.user.email;
+            document.getElementById('user-avatar').innerText = state.user.name.charAt(0);
+            document.getElementById('pref-currency').value = state.user.currency || 'USD';
+
+            switchTab('overview');
+            showToast("Welcome back to PocketSmart AI!");
+        }
+
+        function handleLogout() {
+            document.getElementById('dashboard-view').classList.add('hidden');
+            document.getElementById('auth-view').classList.remove('hidden');
+            showToast("Logged out successfully");
+        }
+
+        // --- NAVIGATION LOGIC ---
+        function switchTab(tabKey) {
+            const tabs = ['overview', 'tracker', 'evaluator', 'deals', 'ai-coach'];
+            tabs.forEach(t => {
+                const navBtn = document.getElementById(`nav-${t}`);
+                const content = document.getElementById(`tab-content-${t}`);
+                if (t === tabKey) {
+                    navBtn.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-extrabold bg-brand-500/10 text-brand-400 border border-brand-500/20 transition";
+                    content.classList.remove('hidden');
+                } else {
+                    navBtn.className = "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition";
+                    content.classList.add('hidden');
+                }
+            });
+
+            if (tabKey === 'overview') updateDashboardStats();
+            if (tabKey === 'tracker') renderExpensesTable();
+            if (tabKey === 'deals') filterDeals('ALL');
+        }
+
+        // --- DASHBOARD OVERVIEW & CHARTS ---
+        function formatCurrency(val) {
+            const curr = CURRENCIES[state.user.currency || 'USD'];
+            const converted = val * curr.rate;
+            return `${curr.symbol}${converted.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        }
+
+        function handleCurrencyChange(code) {
+            state.user.currency = code;
+            saveStateToStorage();
+            updateDashboardStats();
+            renderExpensesTable();
+            showToast(`Currency updated to ${code}`);
+        }
+
+        function updateDashboardStats() {
+            const totalSpent = state.expenses.reduce((s, e) => s + e.amount, 0);
+            const remaining = state.user.income - totalSpent;
+            const savingsRate = Math.max(0, ((remaining / state.user.income) * 100)).toFixed(1);
+            const spentPct = ((totalSpent / state.user.budget) * 100).toFixed(1);
+
+            document.getElementById('stat-income').innerText = formatCurrency(state.user.income);
+            document.getElementById('stat-target').innerText = formatCurrency(state.user.budget);
+            document.getElementById('stat-spent').innerText = formatCurrency(totalSpent);
+            document.getElementById('stat-remaining').innerText = formatCurrency(remaining);
+            document.getElementById('stat-savings-rate').innerText = `${savingsRate}%`;
+            document.getElementById('stat-spent-pct').innerText = `${spentPct}% of target budget used`;
+
+            renderCharts();
+        }
+
+        function promptEditIncome() {
+            const newInc = prompt("Update Monthly Income:", state.user.income);
+            if (newInc && !isNaN(newInc)) {
+                state.user.income = parseFloat(newInc);
+                saveStateToStorage();
+                updateDashboardStats();
+            }
+        }
+
+        function renderCharts() {
+            // Doughnut Chart
+            const ctxDoughnut = document.getElementById('chart-doughnut').getContext('2d');
+            const totals = {};
+            state.expenses.forEach(e => totals[e.category] = (totals[e.category] || 0) + e.amount);
+
+            if (doughnutChart) doughnutChart.destroy();
+            doughnutChart = new Chart(ctxDoughnut, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(totals),
+                    datasets: [{
+                        data: Object.values(totals),
+                        backgroundColor: ['#10b981', '#6366f1', '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6', '#64748b'],
+                        borderWidth: 2,
+                        borderColor: '#0f172a'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#94a3b8', font: { size: 10 } } }
+                    }
+                }
+            });
+
+            // Trend Chart
+            const ctxTrend = document.getElementById('chart-trend').getContext('2d');
+            if (trendChart) trendChart.destroy();
+            trendChart = new Chart(ctxTrend, {
+                type: 'line',
+                data: {
+                    labels: ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+                    datasets: [{
+                        label: 'Monthly Spend',
+                        data: [720, 890, 750, 910, 840, state.expenses.reduce((s, e) => s + e.amount, 0)],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { display: false } },
+                        y: { ticks: { color: '#64748b', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+        }
+
+        // --- EXPENSE TRACKER LOGIC ---
+        function renderExpensesTable() {
+            const tbody = document.getElementById('expenses-table-body');
+            const search = document.getElementById('tracker-search').value.toLowerCase();
+            const cat = document.getElementById('tracker-cat-filter').value;
+
+            const filtered = state.expenses.filter(e => {
+                const matchSearch = e.title.toLowerCase().includes(search) || (e.tag && e.tag.toLowerCase().includes(search));
+                const matchCat = cat === 'ALL' || e.category === cat;
+                return matchSearch && matchCat;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-slate-500">No matching expense logs found.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(e => `
+                <tr class="hover:bg-slate-800/40 transition">
+                    <td class="p-3.5 text-slate-400 font-mono">${e.date}</td>
+                    <td class="p-3.5 font-bold text-white">${escapeHtml(e.title)}</td>
+                    <td class="p-3.5"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 border border-slate-700 text-slate-300">${e.category}</span></td>
+                    <td class="p-3.5"><span class="text-[10px] text-brand-400 font-semibold">${e.tag ? '#' + escapeHtml(e.tag) : '-'}</span></td>
+                    <td class="p-3.5 font-black text-white">${formatCurrency(e.amount)}</td>
+                    <td class="p-3.5 text-right space-x-2">
+                        <button onclick="editExpense(${e.id})" class="text-slate-400 hover:text-brand-400"><i class="fa-solid fa-pen"></i></button>
+                        <button onclick="deleteExpense(${e.id})" class="text-slate-400 hover:text-rose-400"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openExpenseModal(editId = null) {
+            document.getElementById('modal-expense').classList.remove('hidden');
+            if (editId) {
+                const item = state.expenses.find(e => e.id === editId);
+                document.getElementById('modal-title').innerText = "Edit Expense Entry";
+                document.getElementById('modal-exp-id').value = item.id;
+                document.getElementById('modal-exp-title').value = item.title;
+                document.getElementById('modal-exp-amount').value = item.amount;
+                document.getElementById('modal-exp-category').value = item.category;
+                document.getElementById('modal-exp-date').value = item.date;
+                document.getElementById('modal-exp-tag').value = item.tag || '';
+            } else {
+                document.getElementById('modal-title').innerText = "Log New Expense";
+                document.getElementById('modal-exp-id').value = '';
+                document.getElementById('modal-exp-title').value = '';
+                document.getElementById('modal-exp-amount').value = '';
+                document.getElementById('modal-exp-tag').value = '';
+            }
+        }
+
+        function closeExpenseModal() {
+            document.getElementById('modal-expense').classList.add('hidden');
+        }
+
+        function handleSaveExpense(e) {
+            e.preventDefault();
+            const id = document.getElementById('modal-exp-id').value;
+            const title = document.getElementById('modal-exp-title').value;
+            const amount = parseFloat(document.getElementById('modal-exp-amount').value);
+            const category = document.getElementById('modal-exp-category').value;
+            const date = document.getElementById('modal-exp-date').value;
+            const tag = document.getElementById('modal-exp-tag').value;
+
+            if (id) {
+                const idx = state.expenses.findIndex(x => x.id == id);
+                if (idx !== -1) state.expenses[idx] = { id: Number(id), title, amount, category, date, tag };
+                showToast("Expense updated!");
+            } else {
+                state.expenses.unshift({ id: Date.now(), title, amount, category, date, tag });
+                showToast("New expense logged!");
+            }
+
+            saveStateToStorage();
+            closeExpenseModal();
+            renderExpensesTable();
+            updateDashboardStats();
+        }
+
+        function deleteExpense(id) {
+            state.expenses = state.expenses.filter(e => e.id !== id);
+            saveStateToStorage();
+            renderExpensesTable();
+            updateDashboardStats();
+            showToast("Expense entry deleted.");
+        }
+
+        function editExpense(id) {
+            openExpenseModal(id);
+        }
+
+        // --- PURCHASE EVALUATOR LOGIC ---
+        function handleEvaluatePurchase(e) {
+            e.preventDefault();
+            const name = document.getElementById('eval-name').value;
+            const price = parseFloat(document.getElementById('eval-price').value);
+            const priority = parseInt(document.getElementById('eval-priority').value);
+            const frequency = document.getElementById('eval-frequency').value;
+
+            const totalSpent = state.expenses.reduce((s, item) => s + item.amount, 0);
+            const remaining = state.user.income - totalSpent;
+            const priceRatio = (price / Math.max(1, remaining)) * 100;
+
+            // Algorithm score 0-100
+            let score = 50;
+            if (priority === 3) score += 35;
+            if (priority === 2) score += 15;
+            if (frequency === 'daily') score += 20;
+            if (frequency === 'weekly') score += 10;
+            if (priceRatio > 25) score -= 30;
+            if (priceRatio > 50) score -= 30;
+
+            score = Math.max(5, Math.min(98, score));
+
+            let verdictClass = 'text-emerald-400';
+            let verdictTitle = 'BUY APPROVED';
+            let recommendationText = 'This purchase fits well within your remaining safe margin and offers high utility.';
+
+            if (score < 45) {
+                verdictClass = 'text-rose-400';
+                verdictTitle = 'RECONSIDER / WAIT 48 HOURS';
+                recommendationText = `This expense consumes ${priceRatio.toFixed(1)}% of your remaining balance for a non-essential priority. Try putting it on a 48-hour waitlist!`;
+            } else if (score < 70) {
+                verdictClass = 'text-amber-400';
+                verdictTitle = 'MODERATE CAUTION';
+                recommendationText = 'Acceptable buy, but look for a refurbished option or coupon deal before proceeding.';
+            }
+
+            const resultContainer = document.getElementById('evaluator-result-card');
+            resultContainer.innerHTML = `
+                <div>
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">AI Evaluation Report</span>
+                        <span class="text-xs font-black px-2.5 py-1 rounded-full bg-slate-950 border border-slate-800 ${verdictClass}">
+                            Score: ${score}/100
+                        </span>
+                    </div>
+
+                    <h4 class="text-xl font-black ${verdictClass} mb-1">${verdictTitle}</h4>
+                    <p class="text-sm font-extrabold text-white mb-2">${escapeHtml(name)} — ${formatCurrency(price)}</p>
+                    <p class="text-xs text-slate-300 leading-relaxed mb-6">${recommendationText}</p>
+
+                    <div class="grid grid-cols-2 gap-3 bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-xs mb-6">
+                        <div>
+                            <span class="text-[10px] text-slate-500 block uppercase font-bold">Remaining Impact</span>
+                            <span class="font-extrabold text-slate-200">${priceRatio.toFixed(1)}% of balance</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-500 block uppercase font-bold">Cost Per Use (Est.)</span>
+                            <span class="font-extrabold text-slate-200">${formatCurrency(price / (frequency === 'daily' ? 30 : 4))}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="switchTab('deals')" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-2 border border-slate-700">
+                    <i class="fa-solid fa-tags text-accent-400"></i> Check Alternative Deals First
+                </button>
+            `;
+        }
+
+        // --- DEALS ENGINE LOGIC ---
+        function filterDeals(cat) {
+            const grid = document.getElementById('deals-grid');
+            const btns = document.querySelectorAll('.deal-cat-btn');
+
+            btns.forEach(b => {
+                if (b.innerText.toLowerCase().includes(cat.toLowerCase()) || (cat === 'ALL' && b.innerText === 'All Deals')) {
+                    b.className = "deal-cat-btn bg-brand-500 text-slate-950 font-extrabold px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition";
+                } else {
+                    b.className = "deal-cat-btn bg-slate-900 border border-slate-800 text-slate-300 font-bold px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition";
+                }
+            });
+
+            const filtered = state.deals.filter(d => cat === 'ALL' || d.category === cat);
+            grid.innerHTML = filtered.map(d => `
+                <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between hover:border-slate-700 transition">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-brand-400 border border-slate-700">${d.category}</span>
+                            <span class="text-xs font-black text-emerald-400">${d.discount}</span>
+                        </div>
+                        <h4 class="font-extrabold text-sm text-white mb-1">${d.title}</h4>
+                        <p class="text-xs text-slate-400 leading-relaxed mb-4">${d.desc}</p>
+                    </div>
+                    <div class="pt-3 border-t border-slate-800 flex items-center justify-between">
+                        <span class="font-mono text-xs text-slate-300 bg-slate-950 px-2 py-1 rounded border border-slate-800">CODE: ${d.code}</span>
+                        <button onclick="copyDealCode('${d.code}')" class="text-xs bg-brand-500 hover:bg-brand-600 text-slate-950 font-extrabold px-3 py-1.5 rounded-xl transition">
+                            Copy Code
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function copyDealCode(code) {
+            const el = document.createElement('textarea');
+            el.value = code;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            showToast(`Coupon code '${code}' copied!`);
+        }
+
+        // --- GEMINI AI CHATBOT LOGIC ---
+        function sendQuickPrompt(promptText) {
+            document.getElementById('chat-input-text').value = promptText;
+            handleSendChatMessage(new Event('submit'));
+        }
+
+        async function handleSendChatMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input-text');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            appendChatMessage('user', msg);
+            input.value = '';
+
+            const loadingId = 'loading-' + Date.now();
+            appendLoading(loadingId);
+
+            try {
+                const totalSpent = state.expenses.reduce((s, item) => s + item.amount, 0);
+                const systemPrompt = `You are PocketSmart Gemini Coach. The user (${state.user.name}) has an income of $${state.user.income}, target budget of $${state.user.budget}, and current spent total of $${totalSpent.toFixed(2)}. Answer concisely in 2-3 practical sentences with micro-budgeting tips.`;
+
+                const apiKey = ""; // Canvas runtime provides Gemini API key
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: msg }] }],
+                        systemInstruction: { parts: [{ text: systemPrompt }] }
+                    })
+                });
+
+                const data = await response.json();
+                removeLoading(loadingId);
+
+                if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
+                    appendChatMessage('ai', data.candidates[0].content.parts[0].text);
+                } else {
+                    appendChatMessage('ai', "I suggest prioritizing essential categories and setting aside 10% into a emergency reserve!");
+                }
+            } catch (err) {
+                removeLoading(loadingId);
+                appendChatMessage('ai', "Quick Budget Tip: Review your dining out log. Cooking 2 extra meals at home each week frees up ~$80 monthly!");
+            }
+        }
+
+        function appendChatMessage(role, text) {
+            const chatBox = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            if (role === 'user') {
+                div.className = "flex justify-end";
+                div.innerHTML = `<div class="bg-brand-500 text-slate-950 p-3 rounded-2xl max-w-lg font-semibold text-xs">${escapeHtml(text)}</div>`;
+            } else {
+                div.className = "flex gap-3 max-w-lg";
+                div.innerHTML = `
+                    <div class="w-7 h-7 rounded-lg bg-accent-500/20 text-accent-400 border border-accent-500/30 flex items-center justify-center flex-shrink-0 text-xs">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div class="bg-slate-800/80 border border-slate-700/80 p-3 rounded-2xl text-slate-200 leading-relaxed">${escapeHtml(text)}</div>
+                `;
+            }
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function appendLoading(id) {
+            const chatBox = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.id = id;
+            div.className = "flex gap-3 max-w-lg";
+            div.innerHTML = `
+                <div class="w-7 h-7 rounded-lg bg-accent-500/20 text-accent-400 border border-accent-500/30 flex items-center justify-center flex-shrink-0 text-xs">
+                    <i class="fa-solid fa-robot"></i>
+                </div>
+                <div class="bg-slate-800/80 border border-slate-700/80 p-3 rounded-2xl text-slate-400 italic text-xs flex items-center gap-2">
+                    <i class="fa-solid fa-circle-notch fa-spin text-brand-400"></i> Thinking...
+                </div>
+            `;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function removeLoading(id) {
+            const el = document.getElementById(id);
+            if (el) el.remove();
+        }
+
+        function clearChatHistory() {
+            document.getElementById('chat-messages').innerHTML = `
+                <div class="flex gap-3 max-w-xl">
+                    <div class="w-7 h-7 rounded-lg bg-accent-500/20 text-accent-400 border border-accent-500/30 flex items-center justify-center flex-shrink-0 text-xs">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div class="bg-slate-800/80 border border-slate-700/80 p-3 rounded-2xl text-slate-200 leading-relaxed">
+                        Chat reset! Ask me anything about your finances.
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- UTILITY FUNCTIONS ---
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        function showToast(msg) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = "bg-slate-900 text-white border border-slate-800 px-4 py-2.5 rounded-xl text-xs font-bold shadow-2xl flex items-center gap-2 animate-bounce";
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-brand-400"></i> ${msg}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/[&<>"']/g, function(m) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+            });
+        }
+    </script>
+</body>
+</html>
